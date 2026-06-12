@@ -11,9 +11,15 @@ from dotenv import load_dotenv
 import streamlit as st
 
 load_dotenv()
-groq_api_key = st.secrets.get("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
-# Initialize the LLM (Ensure GROQ_API_KEY is in your environment)
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0.3)
+
+@st.cache_resource
+def get_llm():
+    # Retrieve the key from secrets
+    api_key = st.secrets.get("GROQ_API_KEY")
+    return ChatGroq(api_key=api_key, model="llama-3.3-70b-versatile", temperature=0.3)
+
+# Use this to get your model instance throughout your app
+llm = get_llm()
 
 class AgentState(TypedDict):
     input_question: str
