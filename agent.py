@@ -41,7 +41,6 @@ def research_node(state: AgentState):
     content = response.content.replace('"', '').strip("[]")
 
     # Store as a list because AgentState requires it,
-    # but the string inside will be clean.
     return {"research_answers": [content], "llm_call_count": state.get("llm_call_count", 0) + 1}
 
 def human_approval_node(state: AgentState):

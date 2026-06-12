@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from agent import agent_app
-from langgraph.checkpoint.memory import MemorySaver
 
 app = FastAPI()
 
