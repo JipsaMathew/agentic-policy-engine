@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+PyPDF2
+sentence-transformers
+numpy
+langgraph
+langchain
+langchain-groq
+streamlit
+streamlit
+langgraph-checkpoint-sqlite
+python-dotenv
