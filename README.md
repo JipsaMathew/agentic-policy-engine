@@ -23,19 +23,25 @@ Python 3.11+
 
 Groq API Key
 
-Installation
-Clone the repository:
+### Installation
 
-Bash
-git clone https://github.com/yourusername/agentic-policy-engine.git
-cd agentic-policy-engine
-
-2. Install dependencies:
-   ```bash
-pip install -r requirements.txt
-Set your environment variables:
-
-Bash
-export GROQ_API_KEY='your-api-key-here'
-4. Run the application:
-   ```bash streamlit run main.py
+> **1. Clone the repository:**
+> ```bash
+> git clone [https://github.com/yourusername/agentic-policy-engine.git](https://github.com/yourusername/agentic-policy-engine.git)
+> cd agentic-policy-engine
+> ```
+>
+> **2. Install dependencies:**
+> ```bash
+> pip install -r requirements.txt
+> ```
+>
+> **3. Set your environment variables:**
+> ```bash
+> export GROQ_API_KEY='your-api-key-here'
+> ```
+>
+> **4. Run the application:**
+> ```bash
+> streamlit run main.py
+> ```
