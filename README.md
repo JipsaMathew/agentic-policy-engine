@@ -27,7 +27,7 @@ Groq API Key
 
 > **1. Clone the repository:**
 > ```bash
-> git clone [https://github.com/yourusername/agentic-policy-engine.git](https://github.com/yourusername/agentic-policy-engine.git)
+>git clone https://github.com/JipsaMathew/agentic-policy-engine.git
 > cd agentic-policy-engine
 > ```
 >
