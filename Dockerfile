@@ -15,4 +15,6 @@ COPY . .
 EXPOSE 7860
 
 # Run Streamlit
-CMD ["streamlit", "run", "main.py", "--server.port=7860", "--server.address=0.0.0.0"]git
+CMD ["streamlit", "run", "main.py", "--server.port=7860", "--server.address=0.0.0.0"]
+
+ENV PYTHONUNBUFFERED=1
