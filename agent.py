@@ -7,19 +7,20 @@ from rag_engine import RagEngine
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 import os
-from dotenv import load_dotenv
 import streamlit as st
 
-load_dotenv()
+
+# Note: load_dotenv() is not needed in Streamlit Cloud,
+# but keeping it is fine as it will just skip if no .env exists.
 
 @st.cache_resource
 def get_llm():
-    # Retrieve the key from secrets
-    api_key = st.secrets.get("GROQ_API_KEY")
-    return ChatGroq(api_key=api_key, model="llama-3.3-70b-versatile", temperature=0.3)
+    # Retrieve the key from secrets or environment
+    api_key = st.secrets.get("GROQ_API_KEY") or os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY not found. Please set it in Streamlit Secrets.")
+    return ChatGroq(model="llama-3.3-70b-versatile", api_key=api_key, temperature=0.3)
 
-# Use this to get your model instance throughout your app
-llm = get_llm()
 
 class AgentState(TypedDict):
     input_question: str
@@ -29,14 +30,20 @@ class AgentState(TypedDict):
     human_approved: bool
     llm_call_count: int
 
+
 rag_engine = RagEngine("gm.pdf")
+
 
 # --- Nodes ---
 def planning_node(state: AgentState):
-    return {"sub_questions": [f"Details on: {state['input_question']}"], "llm_call_count": state.get("llm_call_count", 0) + 1}
+    return {"sub_questions": [f"Details on: {state['input_question']}"],
+            "llm_call_count": state.get("llm_call_count", 0) + 1}
 
 
 def research_node(state: AgentState):
+    # Initialize LLM only when this node is actually executed
+    llm = get_llm()
+
     context = rag_engine.retrieve(state["sub_questions"][0])
     prompt = ChatPromptTemplate.from_template(
         "Answer the question using only this context in exactly two short lines.\n"
@@ -44,25 +51,27 @@ def research_node(state: AgentState):
     )
     response = (prompt | llm).invoke({"context": context, "question": state["input_question"]})
 
-    # Extract raw text and ensure no list artifacts are present
     content = response.content.replace('"', '').strip("[]")
-
-    # Store as a list because AgentState requires it,
     return {"research_answers": [content], "llm_call_count": state.get("llm_call_count", 0) + 1}
+
 
 def human_approval_node(state: AgentState):
     if state.get("human_approved", False):
         return {"is_valid": True}
     raise ValueError("Human intervention required: Please review research results.")
 
+
 def is_critical(question: str) -> bool:
-    critical_keywords = [r"\bend my lease\b", r"\bearly\b", r"\btermination\b", r"\bpayoff\b", r"\bfraud\b", r"\bcancel\b"]
+    critical_keywords = [r"\bend my lease\b", r"\bearly\b", r"\btermination\b", r"\bpayoff\b", r"\bfraud\b",
+                         r"\bcancel\b"]
     return any(re.search(pattern, question.lower()) for pattern in critical_keywords)
+
 
 def route_after_research(state: AgentState):
     if is_critical(state.get("input_question", "")):
         return "approver"
     return "end"
+
 
 # --- Workflow ---
 workflow = StateGraph(AgentState)
@@ -74,10 +83,6 @@ workflow.add_edge("planner", "researcher")
 workflow.add_conditional_edges("researcher", route_after_research, {"approver": "approver", "end": END})
 workflow.add_edge("approver", END)
 
-# Use SqliteSaver for production/cloud environments
-# Create the connection
 conn = sqlite3.connect("checkpoints.sqlite", check_same_thread=False)
-
-# Create the saver
 memory = SqliteSaver(conn)
 agent_app = workflow.compile(checkpointer=memory)
