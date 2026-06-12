@@ -1,4 +1,4 @@
-Architecture
+## Architecture
 
 Orchestration: LangGraph (providing stateful, multi-step reasoning loops).
 
