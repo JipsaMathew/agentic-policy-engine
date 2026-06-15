@@ -1,3 +1,4 @@
+## AI Agent for answering customer queries based on RAG search
 ## Architecture
 
 Orchestration: LangGraph (providing stateful, multi-step reasoning loops).
